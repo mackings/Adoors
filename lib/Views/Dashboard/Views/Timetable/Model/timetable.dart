@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-class TimetableRecord {
+class TimetableRecords {
   final String id;
   final String day;
   final String startTime;
@@ -8,7 +8,7 @@ class TimetableRecord {
   final String courseId;
   final String courseName;
 
-  TimetableRecord({
+  TimetableRecords({
     required this.id,
     required this.day,
     required this.startTime,
@@ -17,8 +17,8 @@ class TimetableRecord {
     required this.courseName,
   });
 
-  factory TimetableRecord.fromJson(Map<String, dynamic> json) {
-    return TimetableRecord(
+  factory TimetableRecords.fromJson(Map<String, dynamic> json) {
+    return TimetableRecords(
       id: json['s'],
       day: json['day'],
       startTime: json['start_time'],
@@ -28,7 +28,7 @@ class TimetableRecord {
     );
   }
 
-  static List<TimetableRecord> fromJsonList(List<dynamic> list) {
-    return list.map((item) => TimetableRecord.fromJson(item)).toList();
+  static List<TimetableRecords> fromJsonList(List<dynamic> list) {
+    return list.map((item) => TimetableRecords.fromJson(item)).toList();
   }
 }

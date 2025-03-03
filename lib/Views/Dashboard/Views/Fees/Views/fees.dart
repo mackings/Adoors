@@ -3,6 +3,7 @@ import 'package:adorss/Views/Dashboard/Views/Fees/model/fees.dart';
 import 'package:adorss/Views/Dashboard/Views/Fees/widgets/feecard.dart';
 import 'package:adorss/Views/Dashboard/widgets/customtext.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 
@@ -38,7 +39,14 @@ class _FeesPageState extends State<FeesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: CustomText(text: "Fees")),
+      appBar: AppBar(title: Text(
+          "Fees",
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _fees == null || _fees!.isEmpty

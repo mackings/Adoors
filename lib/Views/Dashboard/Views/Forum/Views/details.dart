@@ -4,7 +4,10 @@
 import 'package:adorss/Views/Dashboard/Views/Forum/Api/forumservice.dart';
 import 'package:adorss/Views/Dashboard/Views/Forum/Model/forummodel.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+
+
 
 
 class ForumDetailPage extends StatefulWidget {
@@ -34,8 +37,6 @@ class _ForumDetailPageState extends State<ForumDetailPage> {
     });
   }
 
-
-
   void _addComment() async {
     if (_commentController.text.isNotEmpty && !_isSending) {
       setState(() => _isSending = true);
@@ -61,7 +62,17 @@ class _ForumDetailPageState extends State<ForumDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.topic.title)),
+      appBar: AppBar(
+       // automaticallyImplyLeading: false,
+        title: Text(
+          widget.topic.title,
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+      ),
       body: Column(
         children: [
           // Display comments
@@ -72,7 +83,7 @@ class _ForumDetailPageState extends State<ForumDetailPage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text("No comments found."));
+                  return _buildErrorMessage("No comments found.");
                 }
 
                 return ListView.builder(
@@ -80,7 +91,6 @@ class _ForumDetailPageState extends State<ForumDetailPage> {
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     final comment = snapshot.data![index];
-
                     return _buildChatBubble(comment);
                   },
                 );
@@ -96,56 +106,96 @@ class _ForumDetailPageState extends State<ForumDetailPage> {
   }
 
   /// **Builds Chat Bubble for Each Comment**
-Widget _buildChatBubble(Comment comment) {
-  String username = comment.realName ?? "User"; // Show real name if available, else user ID
-  String formattedTime = _formatDate(comment.commentedTime); // Format comment time
+  Widget _buildChatBubble(Comment comment) {
+    String username = _shortenName(comment.realName ?? "User");
+    String formattedTime = _formatDate(comment.commentedTime);
 
-  return Align(
-    alignment: Alignment.centerLeft,
-    child: Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade100,
-        borderRadius: BorderRadius.circular(15),
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.blue.shade100,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.person, size: 16, color: Colors.blue),
+                const SizedBox(width: 6),
+                Text(
+                  username,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blue.shade900,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+
+            // Comment Text
+            Text(
+              comment.comment,
+              style: GoogleFonts.montserrat(fontSize: 15),
+            ),
+            const SizedBox(height: 5),
+
+            // Comment Time
+            Row(
+              children: [
+                const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                const SizedBox(width: 4),
+                Text(
+                  formattedTime,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Username at the top
-          Text(
-            username,
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
-          ),
-          const SizedBox(height: 5),
+    );
+  }
 
-          // Comment Text
-          Text(
-            comment.comment,
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 5),
-
-          // Comment Time (Placed Below the Comment)
-          Text(
-            formattedTime,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
+  /// **Shortens long names**
+  String _shortenName(String name) {
+    return name.length > 15 ? '${name.substring(0, 12)}...' : name;
+  }
 
   /// **Formats the comment date as "28 Feb 2025"**
   String _formatDate(String dateString) {
     try {
       DateTime date = DateTime.parse(dateString);
-      return DateFormat("dd MMM yyyy").format(date); // Example: 28 Feb 2025
+      return DateFormat("dd MMM yyyy").format(date);
     } catch (e) {
-      return dateString; // Return original string if parsing fails
+      return dateString;
     }
+  }
+
+  /// **Builds Error Message UI**
+  Widget _buildErrorMessage(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.montserrat(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade700,
+          ),
+        ),
+      ),
+    );
   }
 
   /// **Builds the Comment Input Field with Send Button**
@@ -170,8 +220,10 @@ Widget _buildChatBubble(Comment comment) {
             Expanded(
               child: TextField(
                 controller: _commentController,
-                decoration: const InputDecoration(
+                style: GoogleFonts.montserrat(fontSize: 14),
+                decoration: InputDecoration(
                   hintText: "Write a comment...",
+                  hintStyle: GoogleFonts.montserrat(color: Colors.grey.shade600),
                   border: InputBorder.none,
                 ),
               ),
@@ -182,7 +234,7 @@ Widget _buildChatBubble(Comment comment) {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : IconButton(
-                    icon: const Icon(Icons.send, color: Colors.blue),
+                    icon: const Icon(Icons.send, color: Colors.blueAccent),
                     onPressed: _addComment,
                   ),
           ],

@@ -3,6 +3,7 @@ import 'package:adorss/Views/Dashboard/Views/Library/Model/libmodel.dart';
 import 'package:adorss/Views/Dashboard/Views/Library/widgets/libcard.dart';
 import 'package:adorss/Views/Dashboard/widgets/customtext.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LibraryPage extends StatefulWidget {
   const LibraryPage({super.key});
@@ -23,7 +24,14 @@ class _LibraryPageState extends State<LibraryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: CustomText(text: "Library")),
+      appBar: AppBar(title: Text(
+          "E-Library",
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),),
       body: FutureBuilder<List<LibraryRecord>?>(
         future: _libraryFuture,
         builder: (context, snapshot) {

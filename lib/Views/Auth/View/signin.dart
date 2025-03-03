@@ -108,7 +108,8 @@ class _SignInState extends State<SignIn> {
                 CustomTextFormField(
                   labelText: "Password",
                   controller: _passwordController,
-                  obscureText: true,
+                  isPassword: true,
+                  //obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Please enter your password";
@@ -123,7 +124,7 @@ class _SignInState extends State<SignIn> {
                         text: 'Sign In',
                         onPressed: _signIn,
                         borderRadius: 20.0,
-                        backgroundColor: Btncolor,
+                        backgroundColor: Colors.grey,
                         textColor: Colors.white,
                       ),
                 const SizedBox(height: 20),

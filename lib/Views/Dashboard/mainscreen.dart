@@ -34,7 +34,7 @@ class _MainScreenState extends State<MainScreen> {
         style: TabStyle.flip, 
         backgroundColor: Colors.white,
         color: Colors.grey,
-        activeColor: Colors.orange,
+        activeColor: Colors.blueGrey,
         elevation: 5.0,
         curveSize: 100, 
         height: 60,

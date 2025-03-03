@@ -3,6 +3,7 @@ import 'package:adorss/Views/Dashboard/Views/courses/model/coursemodel.dart';
 import 'package:adorss/Views/Dashboard/Views/courses/widgets/coursecard.dart';
 import 'package:adorss/Views/Dashboard/widgets/customtext.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 
@@ -24,7 +25,17 @@ class _CoursesState extends State<Courses> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const CustomText(text: "Courses",)),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text(
+          "Courses",
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        ),
       body: FutureBuilder<List<Course>?>(
         future: _coursesFuture,
         builder: (context, snapshot) {

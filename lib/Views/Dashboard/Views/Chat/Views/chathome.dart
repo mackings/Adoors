@@ -3,6 +3,7 @@ import 'package:adorss/Views/Dashboard/Views/Chat/Model/chatmodel.dart';
 import 'package:adorss/Views/Dashboard/Views/Chat/Views/chatscreen.dart';
 import 'package:adorss/Views/Dashboard/Views/Chat/widgets/allchat.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 
@@ -27,7 +28,14 @@ class _ChatListPageState extends State<ChatListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Chats")),
+      appBar: AppBar(title: Text(
+          "Chats",
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),),
       body: FutureBuilder<List<Chat>?>(
         future: _chats,
         builder: (context, snapshot) {

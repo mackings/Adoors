@@ -3,6 +3,7 @@ import 'package:adorss/Views/Dashboard/Views/Announcements/Model/announcementmod
 import 'package:adorss/Views/Dashboard/Views/Announcements/Widgets/announcemnetcard.dart';
 import 'package:adorss/Views/Dashboard/widgets/customtext.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 
@@ -37,7 +38,14 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: CustomText(text: "Announcement")),
+      appBar: AppBar(title: Text(
+          "Announcements",
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _announcements == null || _announcements!.isEmpty

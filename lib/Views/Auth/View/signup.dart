@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 
 
+
 class Signup extends StatefulWidget {
   const Signup({super.key});
 
@@ -130,7 +131,7 @@ void _signUp() async {
                         text: 'Sign Up',
                         onPressed: _signUp,
                         borderRadius: 20.0,
-                        backgroundColor: Btncolor,
+                        backgroundColor: Colors.grey,
                         textColor: Colors.white,
                       ),
                 const SizedBox(height: 20),

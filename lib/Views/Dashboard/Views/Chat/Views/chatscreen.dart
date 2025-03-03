@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:adorss/Views/Dashboard/Views/Chat/Api/chatservice.dart';
 import 'package:adorss/Views/Dashboard/Views/Chat/Model/messagemodel.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 
@@ -93,43 +94,68 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.chatTitle)),
+      appBar: AppBar(title: Text(
+          widget.chatTitle,
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),),
       body: Column(
         children: [
           // Messages List
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                return Align(
-                  alignment: message.isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: message.isCurrentUser ? Colors.blue[100] : Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: message.isCurrentUser
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
-                      children: [
-                        Text(message.message, style: const TextStyle(fontSize: 16)),
-                        const SizedBox(height: 5),
-                        Text(
-                          formatTimestamp(message.date),
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+
+
+Expanded(
+  child: ListView.builder(
+    controller: _scrollController,
+    itemCount: _messages.length,
+    itemBuilder: (context, index) {
+      final message = _messages[index];
+      final isCurrentUser = message.isCurrentUser;
+
+      return Align(
+        alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isCurrentUser ? Colors.blue[100] : Colors.grey[200],
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(12),
+              topRight: const Radius.circular(12),
+              bottomLeft: isCurrentUser ? const Radius.circular(12) : Radius.zero,
+              bottomRight: isCurrentUser ? Radius.zero : const Radius.circular(12),
             ),
           ),
+          child: Column(
+            crossAxisAlignment:
+                isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              Text(
+                message.message,
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                formatTimestamp(message.date),
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  ),
+),
+
 
           // Message Input Field
           Container(

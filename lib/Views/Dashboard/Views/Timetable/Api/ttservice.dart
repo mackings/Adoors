@@ -8,7 +8,7 @@ class TimetableService {
   static const String _baseUrl =
       "https://adorss.ng/scripts/course?action=coursetimetable&class=";
 
-  Future<List<TimetableRecord>?> fetchTimetable() async {
+  Future<List<TimetableRecords>?> fetchTimetable() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? userData = prefs.getString('userData');
@@ -44,7 +44,7 @@ class TimetableService {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         print("🔹 Parsed JSON Data: $responseData");
 
-        return TimetableRecord.fromJsonList(responseData["data"]);
+        return TimetableRecords.fromJsonList(responseData["data"]);
       } else {
         throw Exception("Failed to load timetable. Status Code: ${response.statusCode}");
       }

@@ -1,11 +1,8 @@
 import 'package:adorss/Views/Dashboard/Views/Timetable/Api/ttservice.dart';
 import 'package:adorss/Views/Dashboard/Views/Timetable/Model/timetable.dart';
 import 'package:adorss/Views/Dashboard/Views/Timetable/widgets/timetable.dart';
-import 'package:adorss/Views/Dashboard/widgets/customtext.dart';
 import 'package:flutter/material.dart';
-
-
-
+import 'package:google_fonts/google_fonts.dart';
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({super.key});
@@ -15,7 +12,7 @@ class TimetablePage extends StatefulWidget {
 }
 
 class _TimetablePageState extends State<TimetablePage> {
-  late Future<List<TimetableRecord>?> _timetableFuture;
+  late Future<List<TimetableRecords>?> _timetableFuture;
 
   @override
   void initState() {
@@ -26,8 +23,17 @@ class _TimetablePageState extends State<TimetablePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:CustomText(text: "Time table")),
-      body: FutureBuilder<List<TimetableRecord>?>(
+      appBar: AppBar(
+        title: Text(
+          "Time Table",
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+      ),
+      body: FutureBuilder<List<TimetableRecords>?>(
         future: _timetableFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -40,12 +46,20 @@ class _TimetablePageState extends State<TimetablePage> {
             final timetableRecords = snapshot.data!;
 
             return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: timetableRecords.length,
-              itemBuilder: (context, index) {
-                return TimetableCard(record: timetableRecords[index]);
-              },
-            );
+  padding: const EdgeInsets.all(16.0),
+  itemCount: timetableRecords.length,
+  itemBuilder: (context, index) {
+    return TimetableCard(
+      record: TheTimetableRecord(  // ✅ Convert TimetableRecords to TheTimetableRecord
+        courseName: timetableRecords[index].courseName,
+        day: timetableRecords[index].day,
+        startTime: timetableRecords[index].startTime,
+        endTime: timetableRecords[index].endTime,
+      ),
+    );
+  },
+);
+
           }
         },
       ),

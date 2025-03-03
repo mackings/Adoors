@@ -4,8 +4,13 @@ import 'package:adorss/Views/Dashboard/Views/Timetable/views/timetable.dart';
 import 'package:adorss/Views/Dashboard/widgets/customtext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+
+
+
+
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -15,9 +20,10 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  String studentId = "";
-  String classId = "";
-  String schoolId = "";
+  late String studentId;
+  late String classId;
+  late String schoolId;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -27,129 +33,164 @@ class _ProfileState extends State<Profile> {
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    String? userData = prefs.getString('userData');
+    final String? userData = prefs.getString('userData');
 
     if (userData != null) {
       final Map<String, dynamic> userMap = jsonDecode(userData);
-      setState(() {
-        studentId = userMap['user_id'] ?? "N/A";
-        classId = userMap['class_id'] ?? "N/A";
-        schoolId = userMap['school_id'] ?? "N/A";
-      });
+      studentId = userMap['user_id'] ?? "N/A";
+      classId = userMap['class_id'] ?? "N/A";
+      schoolId = userMap['school_id'] ?? "N/A";
+    } else {
+      studentId = "N/A";
+      classId = "N/A";
+      schoolId = "N/A";
     }
+
+    setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: CustomText(text: "Profile"),
+        title: Text(
+          "Profile",
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+       // backgroundColor: Colors.white,
+        elevation: 0,
         automaticallyImplyLeading: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 15, right: 15),
-        child: Column(
-          children: [
-            // Header with Student Info
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.all(16.0),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Student Profile",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  _buildProfileCard(),
                   const SizedBox(height: 10),
-                  _buildCopyableText("📌 Student ID: ", studentId),
-                  _buildCopyableText("🏫 School ID: ", schoolId),
-                  _buildCopyableText("📚 Class ID: ", classId),
+                  Expanded(child: _buildProfileOptions()),
                 ],
               ),
             ),
+    );
+  }
 
-            // Profile Options List
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildListTile(
-                      title: "E-Library",
-                      icon: Icons.calendar_today,
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LibraryPage()));
-                      }),
-                  _buildListTile(
-                    title: "Fees",
-                    icon: Icons.account_balance_outlined,
-                    onTap: (){
-                   Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => FeesPage()));
-                    }
-                  ),
-
-             _buildListTile(
-                    title: "Time table",
-                    icon: Icons.calendar_today_outlined,
-                    onTap: (){
-                   Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => TimetablePage()));
-                    }
-                  ),
-
-                  _buildListTile(
-                    title: "Settings",
-                    icon: Icons.settings,
-                    onTap: () => Navigator.pushNamed(context, "/settings"),
-                  ),
-                  _buildListTile(
-                    title: "Logout",
-                    icon: Icons.logout,
-                    onTap: _logout,
-                  ),
-                ],
-              ),
-            ),
-          ],
+  /// **Modern Profile Card with Gradient & Better Design**
+  Widget _buildProfileCard() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      margin: const EdgeInsets.symmetric(vertical: 19,horizontal: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade700, Colors.blue.shade400],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.shade300.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Student Card",
+            style: GoogleFonts.montserrat(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          _buildCopyableText("📌 Student ID: ", studentId),
+          _buildCopyableText("🏫 School ID: ", schoolId),
+          _buildCopyableText("📚 Class ID: ", classId),
+        ],
       ),
     );
   }
 
-  Widget _buildListTile(
-      {required String title,
-      required IconData icon,
-      required VoidCallback onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.blue),
-      title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
+  /// **Profile Options with Modern UI**
+  Widget _buildProfileOptions() {
+    return ListView(
+      children: [
+        _buildListTile(
+          title: "E-Library",
+          icon: Icons.library_books,
+          onTap: () => _navigateTo(const LibraryPage()),
+        ),
+        _buildListTile(
+          title: "Fees",
+          icon: Icons.account_balance_wallet,
+          onTap: () => _navigateTo(const FeesPage()),
+        ),
+        _buildListTile(
+          title: "Time Table",
+          icon: Icons.schedule,
+          onTap: () => _navigateTo(const TimetablePage()),
+        ),
+        _buildListTile(
+          title: "Settings",
+          icon: Icons.settings,
+          onTap: () => Navigator.pushNamed(context, "/settings"),
+        ),
+        _buildListTile(
+          title: "Logout",
+          icon: Icons.logout,
+          onTap: _logout,
+          isLogout: true,
+        ),
+      ],
     );
   }
 
+  /// **Reusable ListTile with Google Fonts**
+  Widget _buildListTile({
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+    bool isLogout = false,
+  }) {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: ListTile(
+        leading: Icon(icon, color: isLogout ? Colors.red : Colors.blue),
+        title: Text(
+          title,
+          style: GoogleFonts.montserrat(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  /// **Reusable Copyable Text**
   Widget _buildCopyableText(String label, String value) {
     return Row(
       children: [
         Expanded(
           child: SelectableText(
             "$label$value",
-            style: const TextStyle(color: Colors.white),
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              color: Colors.white,
+            ),
           ),
         ),
         IconButton(
@@ -157,17 +198,29 @@ class _ProfileState extends State<Profile> {
           onPressed: () {
             Clipboard.setData(ClipboardData(text: value));
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("$label copied!")),
+              SnackBar(
+                content: Text("$label copied!"),
+                backgroundColor: Colors.blue.shade700,
+                behavior: SnackBarBehavior.floating,
+              ),
             );
           },
         ),
       ],
     );
   }
-}
 
-void _logout() async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.clear(); // Clear all stored data
-  //   Navigator.pushReplacementNamed(context, "/login"); // Redirect to login page
+  /// **Reusable Navigation Function**
+  void _navigateTo(Widget page) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+  }
+
+  /// **Logout Function with Navigation Reset**
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    if (mounted) {
+      Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+    }
+  }
 }

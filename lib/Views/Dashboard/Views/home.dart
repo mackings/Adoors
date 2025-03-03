@@ -128,7 +128,14 @@ Future<void> _getLocationAndCallAPI(String studentId, Function(String) setApiRes
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: CustomText(text:"Home"),
+        title: Text(
+          "Home",
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
         automaticallyImplyLeading: false,
         actions: [
 

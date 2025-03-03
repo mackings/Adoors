@@ -50,19 +50,21 @@ class _RideHistoryCardState extends State<RideHistoryCard>
   String _formatTimestamp(String timestamp) {
     try {
       final parsedDate = DateTime.parse(timestamp);
-      return DateFormat('d MMMM yyyy h:mm a').format(parsedDate);
+      return DateFormat('d MMM yyyy, h:mm a').format(parsedDate);
     } catch (e) {
-      return timestamp; // Return the raw value if parsing fails
+      return timestamp; // Fallback to raw value if parsing fails
     }
   }
 
   Color _getStatusColor() {
-    if (widget.status.toLowerCase() == "awaiting pickup") {
-      return Colors.orange;
-    } else if (widget.status.toLowerCase() == "dropped") {
-      return Colors.green;
+    switch (widget.status.toLowerCase()) {
+      case "awaiting pickup":
+        return Colors.orange;
+      case "dropped":
+        return Colors.green;
+      default:
+        return Colors.grey;
     }
-    return Colors.grey;
   }
 
   @override
@@ -72,15 +74,13 @@ class _RideHistoryCardState extends State<RideHistoryCard>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.grey.shade300,
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withOpacity(0.15),
             blurRadius: 6,
+            spreadRadius: 1,
             offset: const Offset(0, 3),
           ),
         ],
@@ -88,95 +88,82 @@ class _RideHistoryCardState extends State<RideHistoryCard>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.location_on, color: Colors.blue),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  widget.location,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          _buildInfoRow(Icons.location_on, widget.location, Colors.blue),
+         // const SizedBox(height: 12),
+        //  _buildInfoRow(Icons.person, "ID: ${widget.studentId}", Colors.orange),
+          const SizedBox(height: 12),
+          _buildStatusRow(),
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            Icons.drive_eta,
+            widget.driverId.isEmpty ? "Driver ID: N/A" : "Driver ID: ${widget.driverId}",
+            Colors.purple,
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(Icons.person, color: Colors.orange),
-              const SizedBox(width: 8),
-              Text(
-                "ID: ${widget.studentId}",
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(Icons.info, color: Colors.green),
-              const SizedBox(width: 8),
-              widget.status.toLowerCase() == "awaiting pickup"
-                  ? AnimatedOpacity(
-                      opacity: _isVisible ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 500),
-                      child: Text(
-                        "${widget.status}",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: _getStatusColor(),
-                        ),
-                      ),
-                    )
-                  : Text(
-                      "Status: ${widget.status}",
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: _getStatusColor(),
-                      ),
-                    ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(Icons.drive_eta, color: Colors.purple),
-              const SizedBox(width: 8),
-              Text(
-                widget.driverId.isEmpty
-                    ? "Driver ID: N/A"
-                    : "Driver ID: ${widget.driverId}",
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(Icons.calendar_today, color: Colors.grey),
-              const SizedBox(width: 8),
-              Text(
-                _formatTimestamp(widget.timestamp),
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
+          _buildInfoRow(Icons.calendar_today, _formatTimestamp(widget.timestamp), Colors.grey),
         ],
       ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text, Color color) {
+    return Row(
+      children: [
+        _iconContainer(icon, color),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusRow() {
+    return Row(
+      children: [
+        _iconContainer(Icons.info, _getStatusColor()),
+        const SizedBox(width: 8),
+        Expanded(
+          child: widget.status.toLowerCase() == "awaiting pickup"
+              ? AnimatedOpacity(
+                  opacity: _isVisible ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 500),
+                  child: Text(
+                    widget.status,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: _getStatusColor(),
+                    ),
+                  ),
+                )
+              : Text(
+                  "Status: ${widget.status}",
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: _getStatusColor(),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _iconContainer(IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: color, size: 20),
     );
   }
 }
