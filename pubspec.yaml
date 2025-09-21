@@ -41,7 +41,6 @@ dependencies:
   convex_bottom_bar: ^3.2.0
   intl: ^0.20.2
   google_maps_flutter: ^2.7.1
-  flutter_barcode_scanner: ^2.0.0
   geocoding: ^3.0.0
   location: ^7.0.0
   geolocator: ^13.0.2
