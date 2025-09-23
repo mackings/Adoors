@@ -56,6 +56,7 @@ class _SignInState extends State<SignIn> {
 
         // Example: Accessing specific fields
         print("User Token: ${responseModel.token}");
+         print("User: ${responseModel}");
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => MainScreen()));
       } else {
