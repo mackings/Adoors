@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -54,9 +56,24 @@ Future<void> _initMap() async {
   );
   _currentLocation = LatLng(position.latitude, position.longitude);
 
-  // 🔹 Destination
-  List<Location> locations = await locationFromAddress(widget.schoolAddress);
-  _destination = LatLng(locations.first.latitude, locations.first.longitude);
+  // 🔹 Destination (use Google Geocoding API instead of locationFromAddress)
+  final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? "";
+  final url =
+      "https://maps.googleapis.com/maps/api/geocode/json?address=${Uri.encodeComponent(widget.schoolAddress)}&key=$apiKey";
+
+  try {
+    final response = await Dio().get(url);
+    if (response.data["status"] == "OK") {
+      final loc = response.data["results"][0]["geometry"]["location"];
+      _destination = LatLng(loc["lat"], loc["lng"]);
+    } else {
+      debugPrint("❌ Google Geocoding failed: ${response.data["status"]}");
+      return; // stop if no destination found
+    }
+  } catch (e) {
+    debugPrint("❌ Geocoding request error: $e");
+    return;
+  }
 
   // 🔹 Custom icons
   final userIcon =
@@ -114,6 +131,7 @@ Future<void> _initMap() async {
 }
 
 
+
 @override
 void dispose() {
   _positionStream?.cancel();
@@ -122,83 +140,85 @@ void dispose() {
 
 
 
-  Future<void> _drawRoute() async {
-    if (_currentLocation == null || _destination == null) return;
+Future<void> _drawRoute() async {
+  if (_currentLocation == null || _destination == null) return;
 
-    bool isEmulator = false;
+  bool isEmulator = false;
 
-    // 🔹 Detect if running on emulator
-    try {
+  try {
+    if (Platform.isAndroid) {
       final deviceInfo = await DeviceInfoPlugin().androidInfo;
       if (deviceInfo.isPhysicalDevice == false) {
         isEmulator = true;
       }
-    } catch (e) {
-      debugPrint("Device check failed: $e");
+    } else if (Platform.isIOS) {
+      final iosInfo = await DeviceInfoPlugin().iosInfo;
+      if (iosInfo.isPhysicalDevice == false) {
+        isEmulator = true;
+      }
     }
-
-    if (isEmulator) {
-      // ✅ Mock route: Just draw a straight line
-      setState(() {
-        _polylines = {
-          Polyline(
-            polylineId: const PolylineId("mock_route"),
-            color: Colors.blue,
-            width: 30,
-            points: [
-              _currentLocation!,
-              _destination!,
-            ],
-          ),
-        };
-      });
-      return;
-    }
-
-    
-
-    // ✅ Real Directions API call
-
-    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? "";
-
-    PolylinePoints polylinePoints =
-    PolylinePoints(apiKey: apiKey);
-
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      request: PolylineRequest(
-        origin: PointLatLng(
-          _currentLocation!.latitude,
-          _currentLocation!.longitude,
-        ),
-        destination: PointLatLng(
-          _destination!.latitude,
-          _destination!.longitude,
-        ),
-        mode: TravelMode.driving,
-      ),
-    );
-
-    if (result.points.isNotEmpty) {
-      List<LatLng> polylineCoords =
-      result.points.map((p) => LatLng(p.latitude, p.longitude)).toList();
-
-      setState(() {
-        _polylines = {
-          Polyline(
-            polylineId: const PolylineId("real_route"),
-            color: Colors.blue,
-            width: 6,
-            points: polylineCoords,
-          ),
-        };
-      });
-    } else {
-      debugPrint("❌ No polyline points found: ${result.errorMessage}");
-      setState(() {
-        _polylines = {}; // ✅ Clear → map shows only markers
-      });
-    }
+  } catch (e) {
+    debugPrint("Device check failed: $e");
   }
+
+  if (isEmulator) {
+    // ✅ Mock route: straight line (useful in simulator/emulator)
+    setState(() {
+      _polylines = {
+        Polyline(
+          polylineId: const PolylineId("mock_route"),
+          color: Colors.blue,
+          width: 6,
+          points: [
+            _currentLocation!,
+            _destination!,
+          ],
+        ),
+      };
+    });
+    return;
+  }
+
+  // ✅ Real Directions API
+  final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? "";
+  PolylinePoints polylinePoints = PolylinePoints(apiKey: apiKey);
+
+  PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+    request: PolylineRequest(
+      origin: PointLatLng(
+        _currentLocation!.latitude,
+        _currentLocation!.longitude,
+      ),
+      destination: PointLatLng(
+        _destination!.latitude,
+        _destination!.longitude,
+      ),
+      mode: TravelMode.driving,
+    ),
+  );
+
+  if (result.points.isNotEmpty) {
+    List<LatLng> polylineCoords =
+        result.points.map((p) => LatLng(p.latitude, p.longitude)).toList();
+
+    setState(() {
+      _polylines = {
+        Polyline(
+          polylineId: const PolylineId("real_route"),
+          color: Colors.blue,
+          width: 6,
+          points: polylineCoords,
+        ),
+      };
+    });
+  } else {
+    debugPrint("❌ No polyline points found: ${result.errorMessage}");
+    setState(() {
+      _polylines = {}; // clear so at least markers show
+    });
+  }
+}
+
 
 
 
