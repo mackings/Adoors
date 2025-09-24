@@ -5,6 +5,7 @@ import 'package:adorss/Views/Dashboard/Views/Announcements/Views/announcement.da
 import 'package:adorss/Views/Dashboard/Views/Chat/Views/chathome.dart';
 import 'package:adorss/Views/Dashboard/Views/School/APi/schoolService.dart';
 import 'package:adorss/Views/Dashboard/Views/School/Model/schoolModel.dart';
+import 'package:adorss/Views/Dashboard/livetracking.dart';
 import 'package:adorss/Views/Dashboard/widgets/locsheet.dart';
 import 'package:adorss/Views/Dashboard/widgets/ridehistorycard.dart';
 import 'package:flutter/material.dart';
@@ -190,15 +191,17 @@ Future<void> _loadRideHistory() async {
                 return GestureDetector(
                   onTap: () {
                     // Show modal sheet on tap
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return BottomSheetContent(
-                          studentId: ride.studentId ?? 'Unknown ID',
-                          onCallAPI: _getLocationAndCallAPI,
-                        );
-                      },
-                    );
+    if (schoolData != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LiveTrackingPage(
+            schoolAddress: schoolData!.address,
+          ),
+        ),
+      );
+    }
+  
                   },
                   child: RideHistoryCard(
                     status: ride.status ?? 'Unknown',
